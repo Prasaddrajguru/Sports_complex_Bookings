@@ -574,3 +574,144 @@ END $$
 DELIMITER ;
 ```
 
+
+## Testing the Database
+
+First, let's check if our tables are created correctly. 
+
+Try executing the following statements to check if the tables are correct:
+
+```sql
+SELECT * FROM members;
+SELECT * FROM pending_terminations;
+SELECT * FROM bookings;
+SELECT * FROM rooms;
+```
+Next, let’s try the insert_new_member procedure.
+
+execute the following statements:
+
+```sql
+CALL insert_new_member ('angelolott', '1234abcd',
+'AngeloNLott@gmail.com');
+```
+
+Now let's delete two members from this table.
+
+Try executing the following statements:
+
+```sql
+CALL delete_member ('afeil');
+CALL delete_member ('little31');
+
+SELECT * FROM members;
+SELECT * FROM pending_terminations;
+```
+
+Now we should see that both afeil and little31 are deleted from the members table. However, as little31 has an outstanding payment of $10, a new record is added to the pending_terminations table. This is due to the payment_check trigger that we wrote.
+
+Next, let’s try updating a member’s password and email. 
+
+Try executing the following statements:
+
+```sql
+CALL update_member_password ('noah51', '18Oct1976');
+CALL update_member_email ('noah51', 'noah51@hotmail.com');
+
+SELECT * FROM members;
+```
+
+Now, we can  see the password and email address of noah51 updated to 18Oct1976 and noah51@hotmail.com respectively.
+
+Next, we’ll test the update_payment procedure. Before we do that, let’s first run the following two statements:
+
+```sql
+SELECT * FROM members WHERE id = 'marvin1';
+SELECT * FROM bookings WHERE member_id = 'marvin1';
+```
+
+We’ll update the payment status (from 'Paid' to 'UnPaid') for this booking.
+
+Try executing the following statements:
+
+```sql
+CALL update_payment (9);
+SELECT * FROM members WHERE id = 'marvin1';
+SELECT * FROM bookings WHERE member_id = 'marvin1';
+```
+
+The payment_due column for marvin1 in the members table should now show 0.00 and the payment_status column in the bookings table should be updated to Paid.
+
+Next, let’s try the search_room procedure. Try executing the following statement:
+
+```sql
+CALL search_room('Archery Range', '2017-12-26', '13:00:00');
+```
+
+we can see there is no results in the “Result Grid”.
+This is because the “Archery Range” room is already booked on 2017-12-26 at 1pm.
+
+Next, try executing 
+
+```sql
+CALL search_room('Badminton Court', '2018-04-15', '14:00:00');
+```
+
+You should get two rows returned as both badminton courts (B1 and B2) are available on 2018-04-15 at 2pm.
+
+Note that B1 has previously been booked by macejkovic73 (id = 7 in the bookings table). However, the booking was eventually cancelled. Hence, it shows up as available when we do a search.
+
+Finally, try executing
+
+```sql
+CALL search_room('Badminton Court', '2018-06-12', '15:00:00');
+```
+
+You should only get one row returned (B1). This is because B2 has already been booked for the specified date and time (id = 10 in the bookings table).
+
+Next, let’s try to make a booking. Try executing the following statement:
+
+```sql
+CALL make_booking ('AR', '2017-12-26', '13:00:00', 'noah51');
+```
+
+We get the following error message:
+
+Error Code: 1062. Duplicate entry 'AR-2017-12-26-13:00:00' for key 'uc1'
+
+This is due to the unique key constraint (uc1) that we added to the bookings
+table.
+
+Next, try executing the following statements:
+
+```sql
+CALL make_booking ('T1', CURDATE() + INTERVAL 2 WEEK,'11:00:00', 'noah51');
+CALL make_booking ('AR', CURDATE() + INTERVAL 2 WEEK,'11:00:00', 'macejkovic73');
+SELECT * FROM bookings;
+```
+
+You should see two new bookings added to the bookings table. 
+Take note of the booking ids for these bookings. We’ll need them later.
+
+Now let's test  cancel_booking procedure
+
+```sql
+CALL cancel_booking(1, @message);
+SELECT @message;
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
