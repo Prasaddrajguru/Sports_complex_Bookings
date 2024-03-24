@@ -510,5 +510,28 @@ BEGIN
 END $$
 ```
 
+### Triggers
 
+#### payment_check
 
+This trigger checks the outstanding balance of a member, which is recorded in the payment_due column of the members table.
+
+If payment_due is more than $0 and the member terminates his/her account, we’ll transfer the data to the pending_terminations table. This table records all the termination requests that are pending due to an outstanding payment.
+
+Refer SQL Query:
+
+```sql
+DELIMITER $$
+
+CREATE TRIGGER payment_check BEFORE DELETE ON members FOR EACH ROW
+BEGIN
+	DECLARE v_payment_due DECIMAL(6, 2);
+	SELECT payment_due INTO v_payment_due FROM members WHERE id = OLD.id;
+    
+	IF v_payment_due > 0 THEN
+		INSERT INTO pending_terminations (id, email,payment_due) VALUES (OLD.id, OLD.email, OLD.payment_due);
+	END IF;
+END $$
+
+DELIMITER ;
+```
