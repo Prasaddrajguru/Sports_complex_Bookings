@@ -345,7 +345,32 @@ END $$
 DELIMITER ;
 ```
 
+#### make_booking
 
+The make_booking procedure is for making a new booking. We need to insert the booking into the bookings table and update the members table to reflect the charges that the member making the booking needs to pay.
+
+The procedure has four IN parameters, p_room_id, p_booked_date, p_booked_time and p_member_id.
+
+The data types of the parameters match the data types of the room_id, booked_date, booked_time and member_id columns of the bookings table.
+
+Refer SQL Query:
+
+```sql
+DELIMITER $$
+
+CREATE PROCEDURE make_booking(IN p_roomid VARCHAR(255), p_booked_date DATE,p_booked_time TIME,p_member_id VARCHAR(255))
+BEGIN
+	DECLARE v_price DECIMAL(6,2);
+    DECLARE v_payment_due DECIMAL(6,2);
+    
+    SELECT price INTO v_price FROM rooms WHERE id = p_room_id;
+    INSERT INTO bookings(room_id,booked_date,booked_time,member_id) VALUES (p_room_id,p_booked_date, p_booked_time,p_member_id);
+    SELECT payment_due INTO v_payment_due FROM members WHERE id = p_member_id;
+	UPDATE members SET payment_due = v_payment_due + v_price WHERE id = p_member_id;
+END $$
+
+DELIMITER ;
+```
 
 
 
