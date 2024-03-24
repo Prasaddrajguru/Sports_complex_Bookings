@@ -372,33 +372,72 @@ END $$
 DELIMITER ;
 ```
 
+#### update_payment
 
+This procedure is for updating the bookings and members tables after a member makes payment for his/her booking.
 
+The update_payment procedure has one IN parameter called p_id, whose data type matches the id column of the bookings table.
 
+Refer SQL Query:
 
+```sql
+DELIMITER $$
 
+CREATE PROCEDURE update_payment (IN p_id INT)
+BEGIN
+	DECLARE v_member_id VARCHAR(255);
+	DECLARE v_payment_due DECIMAL(6, 2);
+	DECLARE v_price DECIMAL(6, 2);
 
+	UPDATE bookings SET payment_status = 'Paid' WHERE id = p_id;
+	SELECT member_id, price INTO v_member_id, v_price FROM member_bookings WHERE id = p_id;
+	SELECT payment_due INTO v_payment_due FROM members WHERE id = v_member_id;
+	UPDATE members SET payment_due = v_payment_due - v_price WHERE id = v_member_id;
+END $$
 
+DELIMITER ;
+```
 
+#### view_bookings
 
+This procedure allows us to view all the bookings made by a particular member and has one IN parameter called p_id that identifies the member.
 
+Refer SQL Query:
 
+```sql
+DELIMITER $$
 
+CREATE PROCEDURE view_bookings(IN p_id VARCHAR(225))
+BEGIN
+	SELECT * FROM member_bookings WHERE id = p_id;
+END $$
 
+DELIMITER ;
+```
 
+#### search_room
 
+This procedure will allow us to search for available rooms.
 
+It has three IN parameters, p_room_type, p_booked_date and p_booked_time.
 
+Refer SQL Query:
 
+```sql
+DELIMITER $$
 
+CREATE PROCEDURE search_room (IN p_room_type VARCHAR(255), IN p_booked_date DATE, IN p_booked_time TIME)
+BEGIN
+	SELECT * FROM rooms WHERE id NOT IN (
+		SELECT room_id FROM bookings 
+		WHERE booked_date = p_booked_date 
+		AND booked_time = p_booked_time 
+		AND payment_status != 'Cancelled') 
+    AND room_type = p_room_type;
+END $$
 
-
-
-
-
-
-
-
+DELIMITER ;
+```
 
 #### cancel_booking
 
