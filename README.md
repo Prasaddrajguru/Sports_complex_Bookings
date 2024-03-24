@@ -5,13 +5,13 @@ Description - In this project, we are required to build a simple database to hel
 Only registered users are allowed to make a booking. After booking, the complex allows users to cancel their bookings latest by the day prior to the booked date. Cancellation is free. However, if this is the third (or more) consecutive cancellation, the complex imposes a $10 fine.
 
 ## Tables
-1. [members](#members)
+1. members
 2. pending_terminations
 3. rooms
 4. bookings
 
 ## Views
-1. member_bookings
+1. [member_bookings](members-bookings)
 
 ## Stored Procedures
 
