@@ -700,8 +700,16 @@ CALL cancel_booking(1, @message);
 SELECT @message;
 ```
 
+We get the message:
 
+Cancellation cannot be done on/after the booked date
 
+in the "Result Grid". This is because the booked date for booking 1 is 2017-12-26, which is already over.
+
+## We have completed the Project and also the testing of it.
+	Please refer to the sports.sql and test.sql for all the queries.
+
+ Thank you!!
 
 
 
