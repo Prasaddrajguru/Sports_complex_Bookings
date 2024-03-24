@@ -11,7 +11,7 @@ Only registered users are allowed to make a booking. After booking, the complex 
 4. bookings
 
 ## Views
-1. [member_bookings](members-bookings)
+1. [member_bookings](member-bookings)
 
 ## Stored Procedures
 
