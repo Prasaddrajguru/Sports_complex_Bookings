@@ -15,21 +15,21 @@ Only registered users are allowed to make a booking. After booking, the complex 
 
 ## Stored Procedures
 
-1. insert_new_member
-2. delete_member
-3. update_member_password
-4. update_member_email
-5. make_booking
-6. update_payment
-7. view_bookings
-8. search_room
-9. cancel_booking
+1. [insert_new_member](#insert_new_member)
+2. [delete_member](#delete_member)
+3. [update_member_password](#update_member_password)
+4. [update_member_email](#update_member_email)
+5. [make_booking](#make_booking)
+6. [update_payment](#update_payment)
+7. [view_bookings](#view_bookings)
+8. [search_room](#search_room)
+9. [cancel_booking](#cancel_booking)
 
 ## Trigger
-1. payment_check
+1. [payment_check](#payment_check)
 
 ## Stored Function
-1. check_cancellation
+1. [check_cancellation](#check_cancellation)
 
 ### Creating the Database
 
