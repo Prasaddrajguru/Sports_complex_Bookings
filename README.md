@@ -260,6 +260,8 @@ INSERT INTO bookings (id, room_id, booked_date, booked_time,member_id, datetime_
 
 ### View Creation
 
+#### member_bookings
+
 Now we will create a view that shows us all the booking details of a booking.
 
 To create a view, we will use the bookings and rooms table.
