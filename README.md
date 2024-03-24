@@ -319,11 +319,31 @@ END $$
 DELIMITER ;
 ```
 
+#### update_member_password and update_member_email
 
+The first stored procedure is called update_member_password and has two IN parameters, p_id and p_password.
 
+The second procedure is called update_member_email and has two IN parameters, p_id and p_email.
 
+Both procedures use the UPDATE statement to update the password and email of a member with id = p_id.
 
+Refer SQL Query:
 
+```sql
+DELIMITER $$
+
+CREATE PROCEDURE update_member_password(IN p_id VARCHAR(255),IN p_password VARCHAR(255))
+BEGIN
+	UPDATE members SET password = p_password WHERE id = p_id;
+END $$
+
+CREATE PROCEDURE update_member_email(IN p_id VARCHAR(255),IN p_email VARCHAR(255))
+BEGIN
+	UPDATE members SET email = p_email WHERE id = p_id;
+END $$
+
+DELIMITER ;
+```
 
 
 
