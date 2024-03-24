@@ -1,6 +1,6 @@
 # Sports_complex_Bookings
 
-Description - In this project, we required to build a simple database to help us manage the booking process of a sports complex. The sports complex has the following facilities: 2 tennis courts, 2 badminton courts, 2 multi-purpose fields and 1 archery range. Each facility can be booked for a duration of one hour.
+Description - In this project, we are required to build a simple database to help us manage the booking process of a sports complex. The sports complex has the following facilities: 2 tennis courts, 2 badminton courts, 2 multi-purpose fields and 1 archery range. Each facility can be booked for a duration of one hour.
 
 Only registered users are allowed to make a booking. After booking, the complex allows users to cancel their bookings latest by the day prior to the booked date. Cancellation is free. However, if this is the third (or more) consecutive cancellation, the complex imposes a $10 fine.
 
@@ -238,7 +238,7 @@ INSERT INTO rooms (id, room_type, price) VALUES
 ('T2', 'Tennis Court', 10);
 ```
 
-#### rooms table
+#### bookings table
 
 ![image](https://github.com/Prasaddrajguru/Sports_complex_Bookings/assets/148168175/a414e00a-5d1d-491d-9cb9-15b3e146e80d)
 
@@ -277,8 +277,154 @@ ORDER BY b.id
 
 ### Stored procedures
 
+#### insert_new_member
+
+The first stored procedure is for inserting a new member into the members table.
+
+The members table has a total of 5 columns: id, password, email, member_since and payment_due.
+
+As the last two columns have default values, we only need to provide values for the first three columns when inserting a new member.
+
+Refer SQL Query:
+
+```sql
+DELIMITER $$
+
+CREATE PROCEDURE inser_new_member(IN p_id VARCHAR(255),IN p_password VARCHAR(255),IN p_email VARCHAR(255))
+BEGIN
+	INSERT INTO members(p_id,p_password,p_email) VALUES (p_id,p_password,p_email);
+END $$
+
+DELIMITER ;
+```
+
+#### delete_member
+
+This procedure is for deleting a member from the members table.
+
+This stored procedure only has one IN parameter, p_id. Its data type matches that of the id column in the members table.
+
+Within the procedure, we have a DELETE statement that deletes the member whose id equals p_id.
+
+Refer SQL Query:
+
+```sql
+DELIMITER $$
+
+CREATE PROCEDURE delete_member(IN p_id VARCHAR(255))
+BEGIN
+	DELETE FROM members WHERE id = p_id;
+END $$
+
+DELIMITER ;
+```
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### cancel_booking
+
+This procedure has an IN parameter called p_booking_id (whose data type corresponds to the data type of the id column in the bookings table) and an OUT parameter called p_message (that is of VARCHAR(255) type).
+
+Now, we will declare some variables:
+
+1. v_cancellation
+2. v_member_id
+3. v_payment_status
+4. v_booked_date
+5. v_price
+6. v_payment_due
+
+And SET v_cancellation to 0.
+
+Now, we need to select the member_id, booked_date, price and payment_status columns from the member_bookings view where id = p_booking_id and store them into the v_member_id, v_booked_date, v_price and v_payment_status variables respectively.
+
+In addition, we need to select the payment_due column from the members table for the member making the cancellation (WHERE id = v_member_id) and store the result into the v_payment_due variable.
+
+Also, The sports complex allows members to cancel their bookings latest by the day prior to the booked date. In addition, members are not allowed to cancel bookings that have already
+been cancelled or paid for.
+
+Now, we need to update the bookings table to change the payment_status column to 'Cancelled' for this particular booking.
+
+Next, we need to calculate how much the member owes the sports complex now.
+
+Next, we need to check if this is the third consecutive cancellation by the member. If it is, we’ll impose a $10 fine on the member.
+
+For the last step, we simply need to use a SELECT statement to store the message 'Booking Cancelled' into the OUT parameter.
+
+Refer SQL Query:
+
+```sql
+CREATE PROCEDURE cancel_booking (IN p_booking_id INT, OUT p_message VARCHAR(255))
+BEGIN
+	DECLARE v_cancellation INT;
+	DECLARE v_member_id VARCHAR(255);
+	DECLARE v_payment_status VARCHAR(255);
+	DECLARE v_booked_date DATE;
+	DECLARE v_price DECIMAL(6, 2);
+	DECLARE v_payment_due VARCHAR(255);
+	SET v_cancellation = 0;
+    
+    SELECT member_id, booked_date, price, payment_status INTO v_member_id, v_booked_date, v_price, v_payment_status 
+    FROM member_bookings WHERE id = p_booking_id;
+    
+    SELECT payment_due INTO v_payment_due 
+    FROM members WHERE id = v_member_id;
+    
+    IF curdate() >= v_booked_date THEN 
+		SELECT 'Cancellation cannot be done on/after the booked date' INTO p_message;
+        
+		ELSEIF v_payment_status = 'Cancelled' OR v_payment_status = 'Paid' THEN 
+        SELECT 'Booking has already been cancelled or paid' INTO p_message;
+        
+		ELSE 
+			UPDATE bookings SET payment_status = 'Cancelled' WHERE id = p_booking_id;
+    
+			SET v_payment_due = v_payment_due - v_price;
+			SET v_cancellation = check_cancellation(p_booking_id);
+	
+			IF v_cancellation >= 2 THEN SET v_payment_due = v_payment_due + 10;
+			END IF;
+    
+			UPDATE members SET payment_due = v_payment_due WHERE id = v_member_id;
+    
+			SELECT 'Booking Cancelled' INTO p_message;
+	END IF;
+END $$
+```
 
 
 
