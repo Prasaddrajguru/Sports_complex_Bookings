@@ -535,3 +535,40 @@ END $$
 
 DELIMITER ;
 ```
+
+### Stored Function
+
+#### check_cancellation
+
+This function checks the number of consecutive cancellations made by the member who's trying to cancel a booking. It has one parameter p_booking_id whose data type matches that of the id column in the bookings table. In addition, it returns an integer and is deterministic.
+
+Refer SQL Query:
+
+```sql
+DELIMITER $$
+
+CREATE FUNCTION check_cancellation (p_booking_id INT) RETURNS INT
+DETERMINISTIC
+BEGIN
+	DECLARE v_done INT;
+	DECLARE v_cancellation INT;
+	DECLARE v_current_payment_status VARCHAR(255);
+	DECLARE cur CURSOR FOR
+		SELECT payment_status FROM bookings WHERE member_id = (SELECT member_id FROM bookings WHERE id = p_booking_id) ORDER BY datetime_of_booking DESC;
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = 1;
+	SET v_done = 0;
+	SET v_cancellation = 0;
+	OPEN cur;
+	cancellation_loop : LOOP
+		FETCH cur INTO v_current_payment_status;
+		IF v_current_payment_status != 'Cancelled' OR v_done = 1 THEN LEAVE cancellation_loop;
+			ELSE SET v_cancellation = v_cancellation + 1;
+		END IF;
+	END LOOP;
+	CLOSE cur;
+	RETURN v_cancellation;
+END $$
+
+DELIMITER ;
+```
+
